@@ -6,6 +6,9 @@ import Hands from "./game/hands.js";
 import { initUndo } from "./game/undo.js";
 import { initSubmit } from "./game/submit.js";
 import Players from "./game/players.js";
+import shapesIcons from "./game/shapeIcons.js";
+import { IsThemeLight } from "./tools/matchMedia.js";
+import getRefs from "./tools/getRefs.js";
 
 const url = 'wss://qwirkle-ws.herokuapp.com';
 // const url = 'ws://localhost:3000/ws';
@@ -19,81 +22,151 @@ const numPlayers = 2;
 const numTilesInHand = 6;
 const viewingPlayerId = 0;
 
-const rules = Rules(numTilesets, colorNames, shapeNames, numPlayers, numTilesInHand, viewingPlayerId);
-const tilebag = Tilebag(rules);
-const hands = Hands(rules, tilebag);
-const board = Board(rules);
+// newGame();
+// localStorage.clear();
 
-const n = 0;
-for (let j = -n; j < n; j++) {
-    for (let i = -n; i < n; i++) {
-        for (let k = 0; k < 10; k++) {
-            if (board.addTile(i, j, Math.floor(Math.random() * 108))) break;
+
+homeScreen();
+function homeScreen() {
+    const refs = getRefs({ home: 'home-screen', game: 'game-screen', tiles: 'home-tiles', continue: 'btn-continue', new: 'btn-new' });
+
+    refs.continue.onclick = () => {
+        refs.home.classList.add('display-none');
+        refs.game.classList.remove('display-none');
+        newGame();
+    }
+
+    refs.new.onclick = () => {
+        refs.home.classList.add('display-none');
+        refs.game.classList.remove('display-none');
+        localStorage.clear();
+        newGame();
+    }
+
+    function setStyles(ref, attrs) {
+        for (const key in attrs) {
+            ref.style[key] = attrs[key];
         }
     }
+
+    function fhsla(h, s, l, a) {
+        return `hsla(${h},${s}%,${l}%, ${a})`;
+    }
+
+    function getColor(colorId) {
+        const hues = [0, 30, 50, 120, 200, 270];
+        // const hues = Array(6).fill(0).map((_, i) => 360 / 6 * i);
+        const color = [
+            hues[colorId],
+            100,
+            50
+        ];
+        return color;
+    }
+
+    const rand6 = () => Math.floor(Math.random() * 6);
+
+    for (let i = 0; i < 4; i++) {
+        const colorId = rand6(), shapeId = rand6();
+        const color = getColor(colorId);
+
+        {
+            const ref = document.createElement('div');
+            ref.classList.add('tile');
+
+            setStyles(ref, {
+                color: fhsla(...color, 1.0),
+                borderColor: fhsla(...color, 0.1),
+                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 95 : 10, 1.0),
+            });
+
+            ref.appendChild(shapesIcons[shapeId](fhsla(...color, 1.0)));
+
+            refs.tiles.appendChild(ref);
+        }
+    }
+
 }
 
-// board.addTile(0, 0, 0);
-// board.addTile(1, 0, 1);
-// board.addTile(2, 0, 2);
-// board.addTile(3, 0, 3);
-// board.addTile(4, 0, 4);
+function newGame() {
+    const rules = Rules(numTilesets, colorNames, shapeNames, numPlayers, numTilesInHand, viewingPlayerId);
+    const tilebag = Tilebag(rules);
+    const hands = Hands(rules, tilebag);
+    const board = Board(rules);
 
-const players = Players(rules);
+    const n = 0;
+    for (let j = -n; j < n; j++) {
+        for (let i = -n; i < n; i++) {
+            for (let k = 0; k < 10; k++) {
+                if (board.addTile(i, j, Math.floor(Math.random() * 108))) break;
+            }
+        }
+    }
 
-const renderer = Renderer(rules, board, hands, players);
+    // board.addTile(0, 0, 0);
+    // board.addTile(1, 0, 1);
+    // board.addTile(2, 0, 2);
+    // board.addTile(3, 0, 3);
+    // board.addTile(4, 0, 4);
 
-initUndo(board, hands, renderer);
-const submitScore = initSubmit(board, hands, renderer, players, rules, tilebag, ws);
+    const players = Players(rules);
 
-renderer.render();
-renderer.updatePlayer();
-renderer.updateScore();
+    const renderer = Renderer(rules, board, hands, players);
 
-document.getElementById('next-player').onclick = () => {
-    rules.nextViewingPlayer();
+    initUndo(board, hands, renderer);
+    const submitScore = initSubmit(board, hands, renderer, players, rules, tilebag, ws);
+
+    renderer.render();
     renderer.updatePlayer();
     renderer.updateScore();
-    renderer.render();
+
+    document.getElementById('next-player').onclick = () => {
+        rules.nextViewingPlayer();
+        renderer.updatePlayer();
+        renderer.updateScore();
+        renderer.render();
+    }
+
+    window.matchMedia('(orientation: landscape)').addEventListener('change', event => {
+        renderer.render();
+    });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        renderer.render();
+    });
+
+    ws.addEventListener('open', (event) => {
+        console.log('ws open');
+    });
+
+    ws.onmessage = (msg) => {
+        const data = JSON.parse(msg.data);
+        console.log('ws msg', data);
+        switch (data.action) {
+            case 'oneMove':
+                if (data.data.owner !== rules.getViewingPlayer()) {
+                    // console.log('UPDATE');
+                    for (const tile of data.data.tiles) {
+                        board.tiles.live.push({ x: tile.x, y: tile.y, id: tile.tileId });
+                        // hands.recordPlacedTile(tile.x, tile.y);
+                    }
+                    // console.log('a', board.tiles.live);
+                    renderer.renderTiles();
+                    // console.log('b');
+                    hands.setPlacedTiles(data.data.tiles);
+
+                    (async () => {
+                        await submitScore();
+                        renderer.render();
+                    })();
+
+                    // tiles.live.push({ x, y, id });
+                }
+                break;
+            default:
+                break;
+        }
+    };
 }
 
-window.matchMedia('(orientation: landscape)').addEventListener('change', event => {
-    renderer.render();
-});
 
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-    renderer.render();
-});
-
-ws.addEventListener('open', (event) => {
-    console.log('ws open');
-});
-
-ws.onmessage = (msg) => {
-    const data = JSON.parse(msg.data);
-    console.log('ws msg', data);
-    switch (data.action) {
-        case 'oneMove':
-            if (data.data.owner !== rules.getViewingPlayer()) {
-                // console.log('UPDATE');
-                for (const tile of data.data.tiles) {
-                    board.tiles.live.push({ x: tile.x, y: tile.y, id: tile.tileId });
-                    // hands.recordPlacedTile(tile.x, tile.y);
-                }
-                // console.log('a', board.tiles.live);
-                renderer.renderTiles();
-                // console.log('b');
-                hands.setPlacedTiles(data.data.tiles);
-
-                (async () => {
-                    await submitScore();
-                    renderer.render();
-                })();
-
-                // tiles.live.push({ x, y, id });
-            }
-            break;
-        default:
-            break;
-    }
-};
