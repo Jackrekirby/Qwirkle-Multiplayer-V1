@@ -15,6 +15,22 @@ body {
   overflow: hidden;
 }
 
+#ws-status {
+  --s: 5px;
+  position: absolute;
+  top: var(--s);
+  right: var(--s);
+  width: var(--s);
+  height: var(--s);
+  background-color: red;
+  border-radius: 1000px;
+  z-index: 2;
+}
+
+#ws-status.open {
+  background-color: lime;
+}
+
 #game-screen {
   display: flex;
   flex-direction: column;

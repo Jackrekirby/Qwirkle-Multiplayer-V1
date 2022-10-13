@@ -11,21 +11,12 @@ import { IsThemeLight } from "./tools/matchMedia.js";
 import getRefs from "./tools/getRefs.js";
 
 {
-    const version = 'v1';
+    const version = 'v2';
     const ref = document.getElementById('version');
     if (version != ref.innerText) {
         ref.innerText = version + '*';
     }
 }
-
-const url = 'wss://qwirkle-ws.herokuapp.com';
-// const url = 'ws://localhost:3000/ws';
-
-const ws = new WebSocket(url);
-
-ws.addEventListener('open', (event) => {
-    console.log('ws open');
-});
 
 const numTilesets = 3;
 const colorNames = ["red", "orange", "yellow", "green", "blue", "purple"];
@@ -36,6 +27,44 @@ const viewingPlayerId = 0;
 
 // newGame();
 // localStorage.clear();
+
+const wsw = {
+    ws: undefined, onopen: () => { }, onclose: () => { },
+    onerror: () => { }, onmessage: () => { }, init: () => { },
+    ref: document.getElementById('ws-status')
+}; // web socket wrapper
+
+const url = 'wss://qwirkle-ws.herokuapp.com';
+// const url = 'ws://localhost:3000/ws';
+
+wsw.onopen = () => {
+    console.log('ws open');
+    wsw.ref.classList.add('open');
+
+    // setTimeout(() => {
+    //     wsw.ws.close();
+    // }, 1000);
+};
+
+wsw.onclose = () => {
+    console.log('ws closed');
+    wsw.ref.classList.remove('open');
+    wsw.init();
+};
+
+wsw.onerror = () => {
+    console.log('ws error');
+    wsw.ref.classList.remove('open');
+    wsw.init();
+};
+
+wsw.init = () => {
+    wsw.ws = new WebSocket(url);
+    wsw.ws.onopen = wsw.onopen;
+    wsw.ws.onclose = wsw.onclose;
+    wsw.ws.onerror = wsw.onerror;
+    wsw.ws.onmessage = wsw.onmessage;
+}
 
 
 homeScreen();
@@ -126,7 +155,7 @@ function newGame() {
     const renderer = Renderer(rules, board, hands, players);
 
     initUndo(board, hands, renderer);
-    const submitScore = initSubmit(board, hands, renderer, players, rules, tilebag, ws);
+    const submitScore = initSubmit(board, hands, renderer, players, rules, tilebag, wsw);
 
     renderer.render();
     renderer.updatePlayer();
@@ -147,7 +176,7 @@ function newGame() {
         renderer.render();
     });
 
-    ws.onmessage = (msg) => {
+    wsw.onmessage = (msg) => {
         const data = JSON.parse(msg.data);
         console.log('ws msg', data);
         switch (data.action) {
@@ -175,6 +204,8 @@ function newGame() {
                 break;
         }
     };
+
+    wsw.init();
 }
 
 

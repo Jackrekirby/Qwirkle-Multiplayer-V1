@@ -17,7 +17,7 @@ function getMinTile(tiles) {
     return min;
 }
 
-function initSubmit(board, hands, renderer, players, rules, tilebag, ws) {
+function initSubmit(board, hands, renderer, players, rules, tilebag, wsw) {
     if (hands.getNumPlacedTiles() > 0) {
         refs.undo.classList.remove('disable');
         refs.next.classList.remove('disable');
@@ -113,7 +113,7 @@ function initSubmit(board, hands, renderer, players, rules, tilebag, ws) {
         };
 
         // ws.send(JSON.stringify({ action: 'gameState', data: State }));
-        ws.send(JSON.stringify({ action: 'oneMove', data: { tiles: hands.getPlacedTiles(), owner: rules.getViewingPlayer() } }));
+        wsw.ws.send(JSON.stringify({ action: 'oneMove', data: { tiles: hands.getPlacedTiles(), owner: rules.getViewingPlayer() } }));
 
         renderer.clearNextTiles();
         submitScore();
