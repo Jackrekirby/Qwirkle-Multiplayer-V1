@@ -63,13 +63,11 @@ function calcScore(placedTiles, board, wantList) {
     if (wantList) {
         scoreTileX(dx, firstTile, scoreList);
         scoreTileY(dy, firstTile, scoreList);
-        if (scoreList.length === 0) scoreList.push({ x: tile.x, y: tile.y });
+        if (scoreList.length === 0) scoreList.push({ x: firstTile.x, y: firstTile.y });
     } else {
         score += calcPoints(dx) + calcPoints(dy);
         if (score === 0) score = 1;
     }
-
-
 
     return (wantList ? scoreList : score);
 }
