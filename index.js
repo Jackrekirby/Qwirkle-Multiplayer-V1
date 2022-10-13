@@ -10,10 +10,22 @@ import shapesIcons from "./game/shapeIcons.js";
 import { IsThemeLight } from "./tools/matchMedia.js";
 import getRefs from "./tools/getRefs.js";
 
+{
+    const version = 'v1';
+    const ref = document.getElementById('version');
+    if (version != ref.innerText) {
+        ref.innerText = version + '*';
+    }
+}
+
 const url = 'wss://qwirkle-ws.herokuapp.com';
 // const url = 'ws://localhost:3000/ws';
 
 const ws = new WebSocket(url);
+
+ws.addEventListener('open', (event) => {
+    console.log('ws open');
+});
 
 const numTilesets = 3;
 const colorNames = ["red", "orange", "yellow", "green", "blue", "purple"];
@@ -133,10 +145,6 @@ function newGame() {
 
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
         renderer.render();
-    });
-
-    ws.addEventListener('open', (event) => {
-        console.log('ws open');
     });
 
     ws.onmessage = (msg) => {

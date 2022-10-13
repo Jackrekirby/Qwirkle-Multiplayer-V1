@@ -72,6 +72,13 @@ body {
   left: 0;
   z-index: 1;
   width: 2rem;
+  height: 4rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: solid 1px white;
 }
 
 /* version */
