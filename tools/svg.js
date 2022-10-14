@@ -10,6 +10,8 @@ function svg(color, d, viewBox) {
     );
     iconSvg.setAttribute('viewBox', viewBox);
     iconSvg.setAttribute('fill', color);
+    iconSvg.setAttribute('stroke', 'white');
+    iconSvg.setAttribute('stroke-width', '20');
     iconSvg.appendChild(iconPath);
     return iconSvg;
 }

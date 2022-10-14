@@ -11,7 +11,7 @@ import { IsThemeLight } from "./tools/matchMedia.js";
 import getRefs from "./tools/getRefs.js";
 
 {
-    const version = 'v3';
+    const version = 'v4';
     const ref = document.getElementById('version');
     if (version != ref.innerText) {
         ref.innerText = version + '*';
@@ -65,6 +65,56 @@ wsw.init = () => {
     wsw.ws.onerror = wsw.onerror;
     wsw.ws.onmessage = wsw.onmessage;
 }
+
+
+newScreen();
+function newScreen() {
+    const refs = getRefs({ home: 'new-screen', tiles: 'new-tiles' });
+
+    function setStyles(ref, attrs) {
+        for (const key in attrs) {
+            ref.style[key] = attrs[key];
+        }
+    }
+
+    function fhsla(h, s, l, a) {
+        return `hsla(${h},${s}%,${l}%, ${a})`;
+    }
+
+    function getColor(colorId) {
+        const hues = [0, 30, 50, 120, 200, 270];
+        // const hues = Array(6).fill(0).map((_, i) => 360 / 6 * i);
+        const color = [
+            hues[colorId],
+            100,
+            50
+        ];
+        return color;
+    }
+
+    for (let colorId = 0; colorId < 6; colorId++) {
+
+        const color = getColor(colorId);
+        for (let shapeId = 0; shapeId < 6; shapeId++) {
+
+            const ref = document.createElement('div');
+            ref.classList.add('tile');
+
+            setStyles(ref, {
+                color: fhsla(...color, 1.0),
+                borderColor: fhsla(...color, 0.1),
+                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 95 : 10, 1.0),
+            });
+
+            ref.appendChild(shapesIcons[shapeId](fhsla(...color, 1.0)));
+
+            refs.tiles.appendChild(ref);
+        }
+    }
+
+}
+
+
 
 
 homeScreen();

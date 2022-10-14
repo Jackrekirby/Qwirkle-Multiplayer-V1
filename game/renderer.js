@@ -141,7 +141,7 @@ function Renderer(rules, board, hands, players) {
             setStyles(ref, {
                 color: fhsla(...color, 1.0),
                 borderColor: fhsla(...color, 0.1),
-                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 95 : 10, 1.0),
+                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 0 : 100, 1.0),
                 ...tileStyleProps(x, y)
             });
 
@@ -150,7 +150,7 @@ function Renderer(rules, board, hands, players) {
         } else {
             tagRecent(ref);
             setStyles(ref, {
-                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 95 : 10, 1.0),
+                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 0 : 100, 1.0),
                 ...tileStyleProps(x, y)
             });
         }
@@ -228,7 +228,7 @@ function Renderer(rules, board, hands, players) {
             setStyles(ref, {
                 color: fhsla(...color, 1.0),
                 borderColor: fhsla(...color, 0.1),
-                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 95 : 10, 1.0),
+                backgroundColor: fhsla(color[0], 100, IsThemeLight() ? 0 : 100, 1.0),
                 visibility: tile.inHand ? 'visible' : 'hidden',
                 ...styleProps
             });

@@ -15,6 +15,36 @@ body {
   overflow: hidden;
 }
 
+.field {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.field label {
+  background-color: white;
+  color: black;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+}
+
+.field input:focus {
+  outline: none;
+}
+
+.field input {
+  background-color: black;
+  color: white;
+  border: 1px solid white;
+  padding: 0.5rem 1rem;
+}
+
 #ws-status {
   --s: 5px;
   position: absolute;
@@ -31,7 +61,8 @@ body {
   background-color: lime;
 }
 
-#game-screen {
+#game-screen,
+#new-screen {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,6 +90,12 @@ body {
   width: 100%;
 }
 
+#new-screen .tile {
+  width: 2rem;
+  height: 2rem;
+  position: relative;
+}
+
 #home-screen .tile {
   width: 4rem;
   height: 4rem;
@@ -71,6 +108,14 @@ body {
   margin: 0.5rem 1rem;
   background-color: white;
   color: black;
+}
+
+#new-tiles {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  grid-column-gap: 4px;
+  grid-row-gap: 4px;
 }
 
 #home-tiles {
