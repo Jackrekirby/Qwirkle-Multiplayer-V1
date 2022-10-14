@@ -11,7 +11,7 @@ import { IsThemeLight } from "./tools/matchMedia.js";
 import getRefs from "./tools/getRefs.js";
 
 {
-    const version = 'v2';
+    const version = 'v3';
     const ref = document.getElementById('version');
     if (version != ref.innerText) {
         ref.innerText = version + '*';
@@ -188,7 +188,9 @@ function newGame() {
                         // hands.recordPlacedTile(tile.x, tile.y);
                     }
                     // console.log('a', board.tiles.live);
+                    renderer.resize();
                     renderer.renderTiles();
+
                     // console.log('b');
                     hands.setPlacedTiles(data.data.tiles);
 

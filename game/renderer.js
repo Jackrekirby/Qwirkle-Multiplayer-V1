@@ -71,9 +71,9 @@ function Renderer(rules, board, hands, players) {
         const currentPlayerId = rules.getCurrentPlayer();
         const viewingPlayerId = rules.getViewingPlayer();
         if (currentPlayerId === viewingPlayerId) {
-            refs.player.innerText = 'You';
+            refs.player.innerText = `You`;
         } else {
-            refs.player.innerText = `P${currentPlayerId}(${viewingPlayerId})`;
+            refs.player.innerText = `P${currentPlayerId}`;
         }
     }
 
@@ -309,8 +309,36 @@ function Renderer(rules, board, hands, players) {
     }
 
     function renderNextTiles() {
-        for (const tile of board.tiles.next) {
-            renderNextTile(tile.x, tile.y, tile.id);
+        const placedTiles = hands.getPlacedTiles();
+        if (placedTiles.length === 0) {
+            for (const tile of board.tiles.next) {
+                renderNextTile(tile.x, tile.y);
+            }
+        } else {
+            const firstTile = placedTiles[0];
+            const dx = board.findFirstEmptyTile(firstTile.x, firstTile.y, true);
+            const dy = board.findFirstEmptyTile(firstTile.x, firstTile.y, false);
+
+            const validNextTiles = [];
+
+            if (placedTiles.length > 1) {
+                if (placedTiles[0].x === placedTiles[1].x) {
+                    validNextTiles.push({ x: firstTile.x, y: firstTile.y - dy.min - 1 });
+                    validNextTiles.push({ x: firstTile.x, y: firstTile.y + dy.max + 1 });
+                } else {
+                    validNextTiles.push({ x: firstTile.x - dx.min - 1, y: firstTile.y });
+                    validNextTiles.push({ x: firstTile.x + dx.max + 1, y: firstTile.y });
+                }
+            } else {
+                validNextTiles.push({ x: firstTile.x - dx.min - 1, y: firstTile.y });
+                validNextTiles.push({ x: firstTile.x + dx.max + 1, y: firstTile.y });
+                validNextTiles.push({ x: firstTile.x, y: firstTile.y - dy.min - 1 });
+                validNextTiles.push({ x: firstTile.x, y: firstTile.y + dy.max + 1 });
+            }
+
+            for (const tile of validNextTiles) {
+                renderNextTile(tile.x, tile.y);
+            }
         }
     }
 

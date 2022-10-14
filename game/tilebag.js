@@ -7,7 +7,7 @@ function Tilebag(rules) {
     { // construct
         const data = JSON.parse(localStorage.getItem('tilebag'));
         if (data === null) {
-            tiles = (range(rules.numTotaltiles));
+            tiles = shuffleArray(range(rules.numTotaltiles));
             record = Array(rules.numPlayers).fill(0).map(_ => []);
             tileIndex = 0;
         } else {

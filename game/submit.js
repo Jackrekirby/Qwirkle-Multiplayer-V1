@@ -90,27 +90,27 @@ function initSubmit(board, hands, renderer, players, rules, tilebag, wsw) {
             renderer.renderHandTiles();
             renderer.updatePlayer();
             renderer.updateScore();
+
+            // save state
+            board.saveState();
+            hands.saveState();
+            players.saveState();
+            rules.saveState();
+            tilebag.saveState();
         })();
     }
 
     refs.next.onclick = () => {
         if (refs.next.classList.contains('disable')) return;
 
-        // save state
-        board.saveState();
-        hands.saveState();
-        players.saveState();
-        rules.saveState();
-        tilebag.saveState();
-
         // get state for ws
-        const gameState = {
-            board: board.getState(),
-            hands: hands.getState(),
-            players: players.getState(),
-            rules: rules.getState(),
-            tilebag: tilebag.getState(),
-        };
+        // const gameState = {
+        //     board: board.getState(),
+        //     hands: hands.getState(),
+        //     players: players.getState(),
+        //     rules: rules.getState(),
+        //     tilebag: tilebag.getState(),
+        // };
 
         // ws.send(JSON.stringify({ action: 'gameState', data: State }));
         wsw.ws.send(JSON.stringify({ action: 'oneMove', data: { tiles: hands.getPlacedTiles(), owner: rules.getViewingPlayer() } }));
