@@ -1,5 +1,7 @@
-# Qwirkle-Multiplayer
+# Qwirkle-Multiplayer-V1
 
-A recreation of the board game Qwirkle
+The frist recreation of the board game Qwirkle with multiplayer support, via websockets on Heroku. 
 
-https://jackrekirby.github.io/Qwirkle-Multiplayer/
+**(Heroku server no longer maintained)**
+
+https://jackrekirby.github.io/Qwirkle-Multiplayer-V1/
